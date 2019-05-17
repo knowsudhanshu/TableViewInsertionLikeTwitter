@@ -8,14 +8,17 @@
 
 import UIKit
 
-
-
 class MyCell: UITableViewCell {
     static let identifier: String = String(describing: type(of:self))
     
 }
 class ViewController: UIViewController {
     
+    let refreshControl: UIRefreshControl = {
+        let rc = UIRefreshControl()
+        rc.addTarget(self, action: #selector(pullToRefreshAction), for: .valueChanged)
+        return rc
+    }()
     lazy var tableView: UITableView = {
         let tbv = UITableView()
         tbv.delegate = self
@@ -25,11 +28,17 @@ class ViewController: UIViewController {
     
     var dataArr:[String] = ["hello", "here", "can you see me", "hello", "here", "can you see me", "hello", "here", "can you see me", "hello", "here", "can you see me", "hello", "here", "can you see me", "hello", "here", "can you see me", "hello", "here", "can you see me", "hello", "here", "can you see me", "hello", "here", "can you see me", "hello", "here", "can you see me"]
     
+    @objc private func pullToRefreshAction() {
+        tableView.refreshControl?.beginRefreshing()
+        perform(#selector(insertCell), with: nil, afterDelay: 1)
+    }
     override func viewDidLoad() {
         super.viewDidLoad()
         view.backgroundColor = .red
         
         tableView.register(MyCell.self, forCellReuseIdentifier: MyCell.identifier)
+        
+        tableView.refreshControl = refreshControl
         
         view.addSubview(tableView)
         tableView.translatesAutoresizingMaskIntoConstraints = false
@@ -75,6 +84,8 @@ class ViewController: UIViewController {
             }
         }
         seeMoreView.show()
+        
+        tableView.refreshControl?.endRefreshing()
     }
 }
 
