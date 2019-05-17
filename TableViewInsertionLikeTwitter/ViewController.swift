@@ -28,14 +28,14 @@ class ViewController: UIViewController {
     
     var dataArr:[String] = ["hello", "here", "can you see me", "hello", "here", "can you see me", "hello", "here", "can you see me", "hello", "here", "can you see me", "hello", "here", "can you see me", "hello", "here", "can you see me", "hello", "here", "can you see me", "hello", "here", "can you see me", "hello", "here", "can you see me", "hello", "here", "can you see me"]
     
-    @objc private func pullToRefreshAction() {
-        tableView.refreshControl?.beginRefreshing()
-        perform(#selector(insertCell), with: nil, afterDelay: 1)
-    }
     override func viewDidLoad() {
         super.viewDidLoad()
         view.backgroundColor = .red
         
+        setupTableView()
+    }
+    
+    fileprivate func setupTableView() {
         tableView.register(MyCell.self, forCellReuseIdentifier: MyCell.identifier)
         
         tableView.refreshControl = refreshControl
@@ -52,13 +52,24 @@ class ViewController: UIViewController {
             tableView.trailingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.trailingAnchor)
             ])
         tableView.reloadData()
-        
-        
-        perform(#selector(insertCell), with: nil, afterDelay: 4)
-        
+    }
+    
+    
+    @objc private func pullToRefreshAction() {
+        tableView.refreshControl?.beginRefreshing()
+        perform(#selector(insertCell), with: nil, afterDelay: 2)
     }
     
     @objc func insertCell() {
+        tableView.refreshControl?.endRefreshing()
+
+        let seeMoreView = NotificationBannerView(autoDismiss: false)
+        seeMoreView.tapAction = {
+            DispatchQueue.main.async {
+                self.tableView.scrollToRow(at: IndexPath(row: 0, section: 0), at: .top, animated: true)
+            }
+        }
+        seeMoreView.show()
         
         var indexPathArr: [IndexPath] = []
         
@@ -76,16 +87,6 @@ class ViewController: UIViewController {
             
             tableView.scrollToRow(at: IndexPath(row: indexPathArr.count, section: 0), at: .top, animated: false)
         }
-        
-        let seeMoreView = NotificationBannerView(autoDismiss: false)
-        seeMoreView.tapAction = {
-            DispatchQueue.main.async {
-                self.tableView.scrollToRow(at: IndexPath(row: 0, section: 0), at: .top, animated: true)
-            }
-        }
-        seeMoreView.show()
-        
-        tableView.refreshControl?.endRefreshing()
     }
 }
 
